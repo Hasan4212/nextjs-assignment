@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 interface Workout {
   id: number;
@@ -29,13 +30,14 @@ const Library = async () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
           {data.map((workout) => (
-            <div
+            <Link
               key={workout.id}
-              className="bg-[#1b1c21] rounded-lg overflow-hidden"
+              href={`/library/${workout.id}`}
+              className="bg-[#1b1c21] rounded-lg overflow-hidden block transition hover:scale-[1.02]"
             >
 
               {/* IMAGE */}
-              <div className="relative w-full h-[180px]">
+              <div className="relative w-full h-[300px]">
                 <Image
                   src={workout.image}
                   alt={workout.name}
@@ -48,6 +50,7 @@ const Library = async () => {
               <div className="p-4">
 
                 <div className="flex flex-wrap gap-1 mb-2">
+
                   <span className="bg-[#c8ff00] text-black px-2 py-1 text-[9px] font-bold rounded">
                     {workout.difficulty}
                   </span>
@@ -60,6 +63,7 @@ const Library = async () => {
                       {muscle}
                     </span>
                   ))}
+
                 </div>
 
                 <h3 className="text-white font-bold uppercase">
@@ -73,7 +77,8 @@ const Library = async () => {
                 </div>
 
               </div>
-            </div>
+
+            </Link>
           ))}
 
         </div>
