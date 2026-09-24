@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePlan } from "@/components/shared/plan-context";
+import Image from "next/image";
 
 const MyPlan = () => {
   const { plan, removeFromPlan } = usePlan();
@@ -118,11 +119,13 @@ const MyPlan = () => {
                 className="flex flex-col gap-4 rounded-xl border border-[#20232a] bg-[#15171c] p-4 sm:flex-row sm:items-center"
               >
 
-                <img
-                  src={workout.image}
-                  alt={workout.name}
-                  className="h-32 w-full rounded-lg object-cover sm:h-20 sm:w-28"
-                />
+<Image
+  src={workout.image}
+  alt={workout.name}
+  width={112}
+  height={80}
+  className="h-32 w-full rounded-lg object-cover sm:h-20 sm:w-28"
+/>
 
                 <div className="flex-1">
 
