@@ -1,11 +1,22 @@
+
 "use client";
 
 import Link from "next/link";
 import { usePlan } from "@/components/shared/plan-context";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 const MyPlan = () => {
-  const { plan, removeFromPlan } = usePlan();
+  const {
+    plan,
+    removeFromPlan,
+    savedWorkouts,
+    removeSavedWorkout,
+  } = usePlan();
+
+  const searchParams = useSearchParams();
+
+  const isSavedTab = searchParams.get("tab") === "saved";
 
   const totalMinutes = plan.reduce(
     (total, workout) => total + workout.duration,
@@ -67,13 +78,29 @@ const MyPlan = () => {
 
           <div className="flex rounded-md bg-[#191b21] p-1">
 
-            <div className="rounded bg-[#242730] px-4 py-2 text-[10px] text-white">
+            {/* Today's Plan */}
+            <Link
+              href="/my-plan"
+              className={`rounded px-4 py-2 text-[10px] ${
+                !isSavedTab
+                  ? "bg-[#242730] text-white"
+                  : "text-gray-500"
+              }`}
+            >
               Today&apos;s Plan
-            </div>
+            </Link>
 
-            <div className="px-4 py-2 text-[10px] text-gray-500">
-              Saved
-            </div>
+            {/* Saved */}
+            <Link
+              href="/my-plan?tab=saved"
+              className={`rounded px-4 py-2 text-[10px] ${
+                isSavedTab
+                  ? "bg-[#242730] text-white"
+                  : "text-gray-500"
+              }`}
+            >
+              Saved ({savedWorkouts.length})
+            </Link>
 
           </div>
 
@@ -86,99 +113,203 @@ const MyPlan = () => {
 
         </div>
 
-        {/* Empty State */}
-        {plan.length === 0 ? (
+        {/* ================= SAVED ================= */}
+        {isSavedTab ? (
 
-          <div className="mt-4 flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-[#20232a]">
+          savedWorkouts.length === 0 ? (
 
-            <h2 className="text-sm font-bold">
-              NOTHING HERE YET
-            </h2>
+            <div className="mt-4 flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-[#20232a]">
 
-            <p className="mt-2 text-[10px] text-gray-500">
-              Browse the library and add a lift to get moving.
-            </p>
+              <h2 className="text-sm font-bold">
+                NO SAVED WORKOUTS
+              </h2>
 
-            <Link
-              href="/library"
-              className="mt-4 rounded-full bg-[#c8ff00] px-5 py-2 text-[10px] font-bold text-black"
-            >
-              Go to workouts
-            </Link>
+              <p className="mt-2 text-[10px] text-gray-500">
+                Save a workout for later and it will appear here.
+              </p>
 
-          </div>
-
-        ) : (
-
-          <div className="mt-4 space-y-3">
-
-            {plan.map((workout) => (
-
-              <div
-                key={workout.id}
-                className="flex flex-col gap-4 rounded-xl border border-[#20232a] bg-[#15171c] p-4 sm:flex-row sm:items-center"
+              <Link
+                href="/library"
+                className="mt-4 rounded-full bg-[#c8ff00] px-5 py-2 text-[10px] font-bold text-black"
               >
+                Go to workouts
+              </Link>
 
-<Image
-  src={workout.image}
-  alt={workout.name}
-  width={112}
-  height={80}
-  className="h-32 w-full rounded-lg object-cover sm:h-20 sm:w-28"
-/>
+            </div>
 
-                <div className="flex-1">
+          ) : (
 
-                  <div className="flex flex-wrap gap-1">
+            <div className="mt-4 space-y-3">
 
-                    <span className="rounded bg-[#c8ff00] px-2 py-1 text-[9px] font-bold text-black">
-                      {workout.difficulty}
-                    </span>
+              {savedWorkouts.map((workout) => (
 
-                    {workout.muscleGroups.map((muscle) => (
-                      <span
-                        key={muscle}
-                        className="rounded bg-[#292b30] px-2 py-1 text-[9px] text-[#c8ff00]"
-                      >
-                        {muscle}
+                <div
+                  key={workout.id}
+                  className="flex flex-col gap-4 rounded-xl border border-[#20232a] bg-[#15171c] p-4 sm:flex-row sm:items-center"
+                >
+
+                  <Image
+                    src={workout.image}
+                    alt={workout.name}
+                    width={112}
+                    height={80}
+                    className="h-32 w-full rounded-lg object-cover sm:h-20 sm:w-28"
+                  />
+
+                  <div className="flex-1">
+
+                    <div className="flex flex-wrap gap-1">
+
+                      <span className="rounded bg-[#c8ff00] px-2 py-1 text-[9px] font-bold text-black">
+                        {workout.difficulty}
                       </span>
-                    ))}
+
+                      {workout.muscleGroups.map((muscle) => (
+                        <span
+                          key={muscle}
+                          className="rounded bg-[#292b30] px-2 py-1 text-[9px] text-[#c8ff00]"
+                        >
+                          {muscle}
+                        </span>
+                      ))}
+
+                    </div>
+
+                    <h3 className="mt-2 text-sm font-bold uppercase">
+                      {workout.name}
+                    </h3>
+
+                    <div className="mt-2 flex gap-4 text-[10px] text-gray-500">
+                      <span>
+                        {workout.duration} min
+                      </span>
+
+                      <span>
+                        {workout.caloriesBurned} kcal
+                      </span>
+
+                      <span>
+                        ⭐ {workout.rating}
+                      </span>
+                    </div>
 
                   </div>
 
-                  <h3 className="mt-2 text-sm font-bold uppercase">
-                    {workout.name}
-                  </h3>
-
-                  <div className="mt-2 flex gap-4 text-[10px] text-gray-500">
-                    <span>
-                      {workout.duration} min
-                    </span>
-
-                    <span>
-                      {workout.caloriesBurned} kcal
-                    </span>
-
-                    <span>
-                      ⭐ {workout.rating}
-                    </span>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeSavedWorkout(workout.id)}
+                    className="rounded-md border border-red-900 px-3 py-2 text-[10px] text-red-400 transition hover:bg-red-950"
+                  >
+                    Remove
+                  </button>
 
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => removeFromPlan(workout.id)}
-                  className="rounded-md border border-red-900 px-3 py-2 text-[10px] text-red-400 transition hover:bg-red-950"
+              ))}
+
+            </div>
+
+          )
+
+        ) : (
+
+          /* ================= TODAY'S PLAN ================= */
+          plan.length === 0 ? (
+
+            <div className="mt-4 flex min-h-[300px] flex-col items-center justify-center rounded-xl border border-[#20232a]">
+
+              <h2 className="text-sm font-bold">
+                NOTHING HERE YET
+              </h2>
+
+              <p className="mt-2 text-[10px] text-gray-500">
+                Browse the library and add a lift to get moving.
+              </p>
+
+              <Link
+                href="/library"
+                className="mt-4 rounded-full bg-[#c8ff00] px-5 py-2 text-[10px] font-bold text-black"
+              >
+                Go to workouts
+              </Link>
+
+            </div>
+
+          ) : (
+
+            <div className="mt-4 space-y-3">
+
+              {plan.map((workout) => (
+
+                <div
+                  key={workout.id}
+                  className="flex flex-col gap-4 rounded-xl border border-[#20232a] bg-[#15171c] p-4 sm:flex-row sm:items-center"
                 >
-                  Remove
-                </button>
 
-              </div>
+                  <Image
+                    src={workout.image}
+                    alt={workout.name}
+                    width={112}
+                    height={80}
+                    className="h-32 w-full rounded-lg object-cover sm:h-20 sm:w-28"
+                  />
 
-            ))}
+                  <div className="flex-1">
 
-          </div>
+                    <div className="flex flex-wrap gap-1">
+
+                      <span className="rounded bg-[#c8ff00] px-2 py-1 text-[9px] font-bold text-black">
+                        {workout.difficulty}
+                      </span>
+
+                      {workout.muscleGroups.map((muscle) => (
+                        <span
+                          key={muscle}
+                          className="rounded bg-[#292b30] px-2 py-1 text-[9px] text-[#c8ff00]"
+                        >
+                          {muscle}
+                        </span>
+                      ))}
+
+                    </div>
+
+                    <h3 className="mt-2 text-sm font-bold uppercase">
+                      {workout.name}
+                    </h3>
+
+                    <div className="mt-2 flex gap-4 text-[10px] text-gray-500">
+
+                      <span>
+                        {workout.duration} min
+                      </span>
+
+                      <span>
+                        {workout.caloriesBurned} kcal
+                      </span>
+
+                      <span>
+                        ⭐ {workout.rating}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => removeFromPlan(workout.id)}
+                    className="rounded-md border border-red-900 px-3 py-2 text-[10px] text-red-400 transition hover:bg-red-950"
+                  >
+                    Remove
+                  </button>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          )
 
         )}
 
@@ -187,5 +318,4 @@ const MyPlan = () => {
   );
 };
 
-export default MyPlan; 
-
+export default MyPlan;

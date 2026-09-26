@@ -24,6 +24,11 @@ interface PlanContextType {
   addToPlan: (workout: Workout) => void;
   removeFromPlan: (id: number) => void;
   isInPlan: (id: number) => boolean;
+
+  savedWorkouts: Workout[];
+  saveForLater: (workout: Workout) => void;
+  removeSavedWorkout: (id: number) => void;
+  isSaved: (id: number) => boolean;
 }
 
 const PlanContext = createContext<PlanContextType | undefined>(
@@ -35,29 +40,56 @@ export function PlanProvider({
 }: {
   children: ReactNode;
 }) {
-  const [plan, setPlan] = useState<Workout[]>(() => {
-    if (typeof window === "undefined") {
-      return [];
-    }
+  const [plan, setPlan] = useState<Workout[]>([]);
+  const [savedWorkouts, setSavedWorkouts] = useState<Workout[]>([]);
 
-    const savedPlan = localStorage.getItem("fitlog-plan");
+  const [hydrated, setHydrated] = useState(false);
 
-    if (!savedPlan) {
-      return [];
-    }
-
-    try {
-      return JSON.parse(savedPlan) as Workout[];
-    } catch {
-      localStorage.removeItem("fitlog-plan");
-      return [];
-    }
-  });
-
+  // Load data from localStorage
   useEffect(() => {
-    localStorage.setItem("fitlog-plan", JSON.stringify(plan));
-  }, [plan]);
+    const savedPlan = localStorage.getItem("fitlog-plan");
+    const saved = localStorage.getItem("fitlog-saved");
 
+    if (savedPlan) {
+      try {
+        setPlan(JSON.parse(savedPlan) as Workout[]);
+      } catch {
+        localStorage.removeItem("fitlog-plan");
+      }
+    }
+
+    if (saved) {
+      try {
+        setSavedWorkouts(JSON.parse(saved) as Workout[]);
+      } catch {
+        localStorage.removeItem("fitlog-saved");
+      }
+    }
+
+    setHydrated(true);
+  }, []);
+
+  // Save plan
+  useEffect(() => {
+    if (!hydrated) return;
+
+    localStorage.setItem(
+      "fitlog-plan",
+      JSON.stringify(plan)
+    );
+  }, [plan, hydrated]);
+
+  // Save saved workouts
+  useEffect(() => {
+    if (!hydrated) return;
+
+    localStorage.setItem(
+      "fitlog-saved",
+      JSON.stringify(savedWorkouts)
+    );
+  }, [savedWorkouts, hydrated]);
+
+  // Add workout to plan
   const addToPlan = (workout: Workout) => {
     setPlan((currentPlan) => {
       if (currentPlan.some((item) => item.id === workout.id)) {
@@ -68,14 +100,39 @@ export function PlanProvider({
     });
   };
 
+  // Remove workout from plan
   const removeFromPlan = (id: number) => {
     setPlan((currentPlan) =>
       currentPlan.filter((item) => item.id !== id)
     );
   };
 
+  // Check plan
   const isInPlan = (id: number) => {
     return plan.some((item) => item.id === id);
+  };
+
+  // Save workout
+  const saveForLater = (workout: Workout) => {
+    setSavedWorkouts((currentSaved) => {
+      if (currentSaved.some((item) => item.id === workout.id)) {
+        return currentSaved;
+      }
+
+      return [...currentSaved, workout];
+    });
+  };
+
+  // Remove saved workout
+  const removeSavedWorkout = (id: number) => {
+    setSavedWorkouts((currentSaved) =>
+      currentSaved.filter((item) => item.id !== id)
+    );
+  };
+
+  // Check saved
+  const isSaved = (id: number) => {
+    return savedWorkouts.some((item) => item.id === id);
   };
 
   return (
@@ -85,6 +142,11 @@ export function PlanProvider({
         addToPlan,
         removeFromPlan,
         isInPlan,
+
+        savedWorkouts,
+        saveForLater,
+        removeSavedWorkout,
+        isSaved,
       }}
     >
       {children}

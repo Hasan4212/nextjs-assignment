@@ -7,9 +7,10 @@ import Link from "next/link";
 import { usePlan } from "@/components/shared/plan-context";
 
 const Navbar = () => {
-  const { plan } = usePlan();
+  const { plan, savedWorkouts } = usePlan();
 
   const planCount = plan.length;
+  const savedCount = savedWorkouts.length;
 
   return (
     <nav className="w-full border-b border-gray-800 bg-black">
@@ -72,14 +73,14 @@ const Navbar = () => {
 
           {/* Saved */}
           <Link
-            href="/my-plan"
+            href="/my-plan?tab=saved"
             className="text-gray-400 transition hover:text-white"
           >
             Saved
           </Link>
 
           <span className="min-w-5 rounded-full border border-gray-700 px-1.5 py-0.5 text-center text-[10px] text-gray-400 sm:text-xs">
-            {planCount}
+            {savedCount}
           </span>
 
         </div>
@@ -89,5 +90,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar; 
-
+export default Navbar;

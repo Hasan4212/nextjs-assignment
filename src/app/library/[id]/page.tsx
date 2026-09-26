@@ -1,4 +1,5 @@
 
+import SaveForLaterButton from "./SaveForLaterButton";
 import AddToPlanButton from "./AddToPlanButton";
 import Image from "next/image";
 
@@ -197,12 +198,7 @@ export default async function WorkoutDetails({ params }: Props) {
 
 <AddToPlanButton workout={workout} />
 
-              <button
-                type="button"
-                className="rounded-md border border-[#363a42] bg-transparent px-4 py-2 text-[10px] text-gray-400 transition hover:border-gray-500 hover:text-white"
-              >
-                ♡ Save for later
-              </button>
+<SaveForLaterButton workout={workout} />
 
             </div>
 
