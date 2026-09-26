@@ -1,10 +1,11 @@
+
 "use client";
 
 import Link from "next/link";
 import { usePlan } from "@/components/shared/plan-context";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 const MyPlan = () => {
   const {
@@ -351,5 +352,11 @@ const MyPlan = () => {
   );
 };
 
-export default MyPlan; 
+export default function MyPlanPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <MyPlan />
+    </Suspense>
+  );
+} 
 
