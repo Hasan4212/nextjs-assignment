@@ -207,4 +207,5 @@ export default async function WorkoutDetails({ params }: Props) {
       </div>
     </section>
   );
-}
+} 
+

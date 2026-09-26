@@ -1,10 +1,10 @@
-
 "use client";
 
 import Link from "next/link";
 import { usePlan } from "@/components/shared/plan-context";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 const MyPlan = () => {
   const {
@@ -18,6 +18,10 @@ const MyPlan = () => {
 
   const isSavedTab = searchParams.get("tab") === "saved";
 
+  const [sortBy, setSortBy] = useState<"duration" | "calories">(
+    "duration"
+  );
+
   const totalMinutes = plan.reduce(
     (total, workout) => total + workout.duration,
     0
@@ -27,6 +31,22 @@ const MyPlan = () => {
     (total, workout) => total + workout.caloriesBurned,
     0
   );
+
+  const sortedPlan = [...plan].sort((a, b) => {
+    if (sortBy === "duration") {
+      return a.duration - b.duration;
+    }
+
+    return a.caloriesBurned - b.caloriesBurned;
+  });
+
+  const sortedSavedWorkouts = [...savedWorkouts].sort((a, b) => {
+    if (sortBy === "duration") {
+      return a.duration - b.duration;
+    }
+
+    return a.caloriesBurned - b.caloriesBurned;
+  });
 
   return (
     <section className="min-h-screen bg-[#101114] px-5 py-8 text-white">
@@ -104,11 +124,22 @@ const MyPlan = () => {
 
           </div>
 
-          <div className="text-[10px] text-gray-500">
+          {/* Sort */}
+          <div className="flex items-center text-[10px] text-gray-500">
             Sort by{" "}
-            <span className="ml-1 rounded border border-[#292c33] px-2 py-1 text-gray-400">
-              Duration⌄
-            </span>
+
+            <select
+              value={sortBy}
+              onChange={(e) =>
+                setSortBy(
+                  e.target.value as "duration" | "calories"
+                )
+              }
+              className="ml-1 rounded border border-[#292c33] bg-[#15171c] px-2 py-1 text-gray-400 outline-none"
+            >
+              <option value="duration">Duration</option>
+              <option value="calories">Calories</option>
+            </select>
           </div>
 
         </div>
@@ -141,7 +172,7 @@ const MyPlan = () => {
 
             <div className="mt-4 space-y-3">
 
-              {savedWorkouts.map((workout) => (
+              {sortedSavedWorkouts.map((workout) => (
 
                 <div
                   key={workout.id}
@@ -180,6 +211,7 @@ const MyPlan = () => {
                     </h3>
 
                     <div className="mt-2 flex gap-4 text-[10px] text-gray-500">
+
                       <span>
                         {workout.duration} min
                       </span>
@@ -191,6 +223,7 @@ const MyPlan = () => {
                       <span>
                         ⭐ {workout.rating}
                       </span>
+
                     </div>
 
                   </div>
@@ -239,7 +272,7 @@ const MyPlan = () => {
 
             <div className="mt-4 space-y-3">
 
-              {plan.map((workout) => (
+              {sortedPlan.map((workout) => (
 
                 <div
                   key={workout.id}
@@ -318,4 +351,5 @@ const MyPlan = () => {
   );
 };
 
-export default MyPlan;
+export default MyPlan; 
+
